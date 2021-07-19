@@ -28,17 +28,21 @@ function initData(vm) {
 
     // 这个时候 vm 和 data 没有关系，通过_data 进行关联
     data = vm._data = isFunction(data) ? data.call(vm) : data;
+    
     for (let key in data) { // vm.name = 'xxx'相当于 vm._data.name = 'xxx';
-        proxy(vm, '_data', key);
+        proxy(vm, '_data', key); 
     }
     observe(data);
 }
 function initComputed() { }
 function initWatch() { }
 
+
+// proxy方法为了方便开发者修改属性
 function proxy(vm, source, key) {
     Object.defineProperty(vm, key, {
         get() {
+            // 实际返回的是 this._data.key;
             return vm[source][key];
         },
         set(newValue) {

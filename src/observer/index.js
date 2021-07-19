@@ -1,20 +1,33 @@
 import { isObject } from '../utils';
 import { arrayMethods } from './array';
+
+// 1. 如果数据是对象 会将对象不停的递归 进行劫持
+// 2. 如果是数组，会劫持数组的方法，并对数组中不是基本数据类型的进行检测
+
+
 // 监测数据变化 类有类型  对象无类型
 class Observer {
     constructor(data) { // 对对象中的所有属性进行劫持
+
+        data.__ob__ = this;
+        // 在循环时不被循环，enumerable 不可枚举
+        Object.defineProperty(data,'__ob__',{
+            value: this,
+            enumerable: false
+        })
         if (Array.isArray(data)) {
             // 数组劫持的逻辑
             // 数组原来的方法进行改写， 切片编程 高阶函数
+            // 重写了会影响原数组的原生方法
             data.__proto__ = arrayMethods;
-            // 如果数组中的数据是对象类型，需要监控对象的变化
+            // 如果数组中的数据是对象类型，需要监控对象的变化  为了处理 索引取值问题
             this.observeArray(data);
         } else {
+            // 普通对象处理
             this.walk(data); //对象劫持的逻辑
         }
     }
     observeArray(data) { // 对数组中的数组 和 数组中的对象再次劫持 递归了
-        console.log('数组')
         data.forEach(item => observe(item));
     }
     walk(data) { // 对象
@@ -45,6 +58,10 @@ function defineReactive(data, key, value) {
 export function observe(data) {
     // 如果是对象才观察
     if (!isObject(data)) {
+        return;
+    }
+
+    if(data.__ob__){
         return;
     }
 

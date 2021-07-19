@@ -1,5 +1,5 @@
-import {initState} from './state';
-import {observe} from './observer/index'; // node_resolve_plugins
+import { initState } from './state';
+import { compileToFunction } from './compiler/index';
 // 在原型上添加一个init
 export function initMixin(Vue) {
     // 初始化流程
@@ -10,9 +10,30 @@ export function initMixin(Vue) {
         vm.$options = options;
 
         // 初始化状态
-        initState(vm); // 分割代码
+        initState(vm); // 这里就是数据劫持
 
+        if (vm.$options.el) {
+            // 将数据挂载到这个模板上
+            vm.$mount(vm.$options.el);
+        }
+    }
+    Vue.prototype.$mount = function (el) {
+        const vm = this;
+        const options = vm.options;
+        el = document.querySelector(el);
 
+        // 把模板转化成 对应的渲染函数 -> 虚拟dom概念 vnode -> diff 算法 更新虚拟dom -> 产生真实dom 
+        console.log(el);
+        if (!vm.$options.render) {
+            let template = options.template;
+            if (!template && el) { // 用户也没有传递template 就取el的内容作为模板
+                template = el.outterHTML;
+                console.log(template);
+                let render = compileToFunction(template);
+                options.render = render;
+            }
+        }
+        // options.render 就是渲染函数
     }
 }
 
