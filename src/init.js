@@ -19,16 +19,14 @@ export function initMixin(Vue) {
     }
     Vue.prototype.$mount = function (el) {
         const vm = this;
-        const options = vm.options;
+        const options = vm.$options;
         el = document.querySelector(el);
 
         // 把模板转化成 对应的渲染函数 -> 虚拟dom概念 vnode -> diff 算法 更新虚拟dom -> 产生真实dom 
-        console.log(el);
         if (!vm.$options.render) {
             let template = options.template;
             if (!template && el) { // 用户也没有传递template 就取el的内容作为模板
-                template = el.outterHTML;
-                console.log(template);
+                template = el.outerHTML;
                 let render = compileToFunction(template);
                 options.render = render;
             }

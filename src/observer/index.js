@@ -44,7 +44,6 @@ function defineReactive(data, key, value) {
     // 新增一个值，会无法监听，因为这里是根据初始化的键作为监听依据
     Object.defineProperty(data, key, {
         get() {
-            console.log('get', data, key);
             return value;
         },
         set(newV) { // hack
